@@ -31,9 +31,9 @@
 
    atmField               = new LabeledInput('ATM (kg): ', labelX, uiBaseY, '750');
    drawbarLengthField     = new LabeledInput('Drawbar length (mm):', labelX, uiBaseY + 30, '1500');
-   drawbarWidthField      = new LabeledInput('Drawbar width (mm):',  labelX, uiBaseY + 60, '2200');
+   drawbarWidthField      = new LabeledInput('Drawbar width (mm):',  labelX, uiBaseY + 60, '1800');
    trailerBodyLengthField = new LabeledInput('Length of trailer body:', labelX, uiBaseY + 90, '3000');
-   trailerBodyWidthField  = new LabeledInput('Width of trailer body:',  labelX, uiBaseY + 120, '2500');
+   trailerBodyWidthField  = new LabeledInput('Width of trailer body:',  labelX, uiBaseY + 120, '2000');
 
   }
 
@@ -82,17 +82,25 @@
     // Convert main dimensions to pixels
     const bodyLengthPx = trailerBodyLengthField.value() * scaleFactor;
     const bodyWidthPx  = trailerBodyWidthField.value() * scaleFactor;
-
     const bodyRearX   = bodyFrontX + bodyLengthPx;
     const bodyTopY    = centreY - bodyWidthPx / 2;
     const bodyBottomY = centreY + bodyWidthPx / 2;
 
+    let numberOfAxles = 1;
     // --- main trailer body (rectangle) ---
     stroke(0);
     fill(245);
     rect(bodyFrontX, bodyTopY, bodyLengthPx, bodyWidthPx);
     rect(bodyFrontX + offset, bodyTopY + offset, bodyLengthPx - 2 * offset, bodyWidthPx - 2 * offset);
 
+    // --- number of axles and placement
+    if(atmField.value() <= 2000) {
+      numberOfAxles = 1
+    } else if (atmField.value() > 2000 &&  atmField.value() <= 3500) {
+      numberOfAxles = 2
+    };
+    // --- wheel guards ---
+   
     // --- drawbar geometry ---
     // Measurement starts 130 mm in front of the physical drawbar,
     // and finishes at the front of the trailer body.
@@ -128,7 +136,7 @@
       drawingContext.setLineDash([5, 5]);
     }
     line(measurementStartX - 20, centreY, bodyRearX + 20, centreY);
-    line(measurementStartX, dimYTop, measurementStartX, centreY );
+    //line(measurementStartX, dimYTop, measurementStartX, centreY );
     if (drawingContext && drawingContext.setLineDash) {
       drawingContext.setLineDash([]);
     }   
