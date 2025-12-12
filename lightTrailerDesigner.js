@@ -1,3 +1,5 @@
+ // --- URL: https://toddlonergan.github.io/lightTrailerDesigner/
+ 
  // --- configuration in mm ---
   const COUPLER_OFFSET_MM = 130;     // measurement starts 130 mm ahead of the drawbar
   const offset = 5
