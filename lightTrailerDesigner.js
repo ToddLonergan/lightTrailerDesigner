@@ -4,7 +4,6 @@
   // scale: pixels per mm (adjust if you want it bigger/smaller)
   let scaleFactor = 0.08;
   // UI elements
-
   let atmField;
   let drawbarLengthField;
   let drawbarWidthField;
