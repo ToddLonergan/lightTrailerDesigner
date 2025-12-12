@@ -10,8 +10,12 @@
   let drawbarWidthField;
   let trailerBodyLengthField;
   let trailerBodyWidthField;
+  let trailerGuardWidth;
   let trailerBodySelect;
   let numberOfAxles;
+  let toolboxCheckbox;
+  let guardThickness
+
   function setup() {
     const canvasX = 20;
     const canvasY = 20;
@@ -27,14 +31,15 @@
     const uiBaseY = canvasY + 20;
     const labelX  = canvasX + width + 50;
 
-   toolboxCheckbox = createCheckbox('Toolbox', true);
+   toolboxCheckbox = createCheckbox('Toolbox', false);
    toolboxCheckbox.position(labelX, uiBaseY);
 
    atmField               = new LabeledInput('ATM (kg): ', labelX, uiBaseY + 30, '750');
    drawbarLengthField     = new LabeledInput('Drawbar length (mm):', labelX, uiBaseY + 60, '1500');
    drawbarWidthField      = new LabeledInput('Drawbar width (mm):',  labelX, uiBaseY + 90, '1500');
-   trailerBodyLengthField = new LabeledInput('Length of trailer body:', labelX, uiBaseY + 120, '3000');
-   trailerBodyWidthField  = new LabeledInput('Width of trailer body:',  labelX, uiBaseY + 150, '2000');
+   trailerBodyLengthField = new LabeledInput('Length of trailer body (mm):', labelX, uiBaseY + 120, '3000');
+   trailerBodyWidthField  = new LabeledInput('Width of trailer body (mm):',  labelX, uiBaseY + 150, '2000');
+   trailerGuardWidth      = new LabeledInput('Width of Wheel Guards (mm):', labelX, uiBaseY + 180, '250')
 
    trailerBodySelect = createSelect();
    trailerBodySelect.position(labelX + 0.165 * width, uiBaseY );
@@ -57,9 +62,10 @@
     const measuredDrawbarLengthMM = parseFloat(drawbarLengthField.value()) || 0;
     const physicalDrawbarLengthMM = Math.max(measuredDrawbarLengthMM - COUPLER_OFFSET_MM, 0);
 
+    // --- number of axles
     if(atm <= 2000) {
       numberOfAxles = 1
-    } else if (atm > 2001 && atm <= 3500) {
+    } else {
       numberOfAxles = 2
     };
     
@@ -77,10 +83,10 @@
 
     // Trailer geometry origin
     const bodyFrontX = width * 0.4;   // front face of main body
-    const centreY    = height * 0.3;   // trailer centreline
+    const centreY    = height * 0.4;   // trailer centreline
 
     drawTrailerPlan(bodyFrontX, centreY, measuredDrawbarLengthMM, atm);
-
+    
   }
 
   /**
@@ -98,7 +104,11 @@
     const bodyRearX   = bodyFrontX + bodyLengthPx;
     const bodyTopY    = centreY - bodyWidthPx / 2;
     const bodyBottomY = centreY + bodyWidthPx / 2;
-
+    guardThickness = trailerGuardWidth.value() * scaleFactor;
+    const guardMm = parseFloat(trailerGuardWidth.value()) || 0;
+    const bodyMm  = parseFloat(trailerBodyWidthField.value()) || 0;
+    const totalWidth = 2 * guardMm + bodyMm;
+    
     // --- main trailer body (rectangle) ---
     stroke(0);
     fill(245);
@@ -129,40 +139,48 @@
     rect(couplerX - 5, couplerY - 4, couplerLength, 8); // rectangular coupler
     ellipse(couplerX, couplerY, ballsize, ballsize);  // coupler symbol signifying centerpoint of towball
       
-    // --- draw side view
+    // --- Trailer side view
     const centerYSideView = centreY + height * 0.35;
     const axleHeight = centerYSideView + height *0.075;
-    
-    rect(bodyFrontX, centerYSideView , bodyLengthPx, 50) //trailer body side view
+    // --- trailer body side view
+    rect(bodyFrontX, centerYSideView , bodyLengthPx, 50) 
     rect(measurementStartX, centerYSideView + 45 , measuredDrawbarLengthMM * scaleFactor, 5)//drawbar side view
-    arc(couplerX - 5 , centerYSideView +42 , ballsize,  ballsize ,PI , 1.75 * PI); // Side View of Ball part of coupling
+    line(bodyFrontX+5, centerYSideView,bodyFrontX+5, centerYSideView+50);
+    line(bodyRearX-5, centerYSideView, bodyRearX-5, centerYSideView+50);
+
+    // --- Side View of Ball part of coupling
+    arc(couplerX - 5 , centerYSideView +42 , ballsize,  ballsize ,PI , 1.75 * PI); 
     line(sideCouplerLength, centerYSideView +42, sideCouplerLength , centerYSideView +44);
     line(sideCouplerLength + couplerLength, centerYSideView +44, sideCouplerLength + couplerLength, centerYSideView +38);
     line(sideCouplerLength, centerYSideView +44, sideCouplerLength + couplerLength, centerYSideView +44);
     line(sideCouplerLength + couplerLength, centerYSideView +38,(sideCouplerLength + couplerLength)*0.95 ,centerYSideView +38);
 
     // --- toolbox ---
-    if(toolboxCheckbox = true){
-    rect(bodyFrontX, centreY - drawbarWidthPx/2, -25, drawbarWidthPx)
+    if(toolboxCheckbox.checked()){
+    rect(bodyFrontX, centreY - drawbarWidthPx/2, -25, drawbarWidthPx);
     rect(bodyFrontX - 25, centerYSideView + 10, 25, 35);
-    };
-
-    // --- number of axles and placement
-   
+    line(bodyFrontX - 25, centerYSideView + 15,bodyFrontX , centerYSideView+15)
+    }else {};
+  
+    // --- Axle Position TODO
     let axleCenter = drawbarTipX + measuredDrawbarLengthMM * scaleFactor + bodyLengthPx / 2; // distance from coupler back to axle
-    
-
+   
     // --- wheels ---
     if(numberOfAxles===1){
       drawTyre(axleCenter,axleHeight);
+      drawTyreGuard(axleCenter - 30, axleHeight -30, numberOfAxles);
+      drawTyreGuardTop(axleCenter-30, bodyTopY, numberOfAxles);
+      drawTyreGuardTop(axleCenter-30, bodyBottomY+guardThickness, numberOfAxles);
     }else if(numberOfAxles===2){
       drawTyre(axleCenter - 30, axleHeight);
       drawTyre(axleCenter + 30, axleHeight);
+      drawTyreGuard(axleCenter - 50, axleHeight-30, numberOfAxles);
+      drawTyreGuardTop(axleCenter - 50, bodyTopY, numberOfAxles);
+      drawTyreGuardTop(axleCenter - 50, bodyBottomY+guardThickness, numberOfAxles);
     };
 
     // --- dimensions ---
-    const dimYTop    = bodyTopY - 35;
-    const dimYBottom = bodyBottomY + 35;
+    const dimYTop    = bodyTopY - 50;
 
      // Centreline (dashed)
     stroke(150);
@@ -180,7 +198,7 @@
       measurementStartX,
       bodyFrontX,
       dimYTop,
-      measuredDrawbarLengthMM + ' mm '
+      measuredDrawbarLengthMM 
     );
 
     // Trailer Body Length Measurement
@@ -188,7 +206,7 @@
       bodyFrontX,
       bodyLengthPx+bodyFrontX,
       dimYTop,
-      trailerBodyLengthField.value() + ' mm '
+      trailerBodyLengthField.value()
     );    
 
     // Trailer Body Width Measurement
@@ -196,7 +214,7 @@
       bodyLengthPx+bodyFrontX + 50,
       bodyTopY,
       bodyBottomY,
-      trailerBodyWidthField.value() + ' mm '
+      trailerBodyWidthField.value() 
     );
 
     // Drawbar Width Measurement
@@ -204,9 +222,15 @@
       bodyLengthPx + bodyFrontX + 25,
       centreY + drawbarWidthPx/2,
       centreY - drawbarWidthPx/2,
-      drawbarWidthField.value() + ' mm '
+      drawbarWidthField.value() 
     );
-
+    
+    drawVerticalDimension(
+      bodyLengthPx + bodyFrontX + 75,
+      bodyTopY - 25,
+      bodyBottomY + 25,
+      totalWidth
+    );
   }
 
   function drawHorizontalDimension(x1, x2, y, label) {
@@ -256,13 +280,34 @@ function drawTyre(x,y){
     circle(x, y, 30);
     circle(x,y,5);
 }
+
+function drawTyreGuard(x,y,num){
+    beginShape();
+    vertex(x, y);
+    vertex(x+45*num+10,y)
+    vertex(x+45*num+25,y+20);
+    vertex(x+45*num+25,y+15);
+    vertex(x+45*num+10,y-5);
+    vertex(x,y-5);
+    vertex(x-15,y+15);
+    vertex(x-15,y+20);
+    vertex(x,y);
+    endShape();
+    line(x+45*num+25,y+20,x+45*num+25,y+35) // mud flap
+  };
+
+function drawTyreGuardTop(x,y,num){
+  rect(x-15, y,45*num+25, -guardThickness);
+  rect(x+45*num+10, y, 15, -guardThickness);
+  rect(x-15, y, 15, -guardThickness);
+ };
 class LabeledInput {
   constructor(labelText, x, y, defaultValue, type = 'number') {
     this.label = createSpan(labelText);
     this.label.position(x, y);
     this.input = createInput(defaultValue, type);
-    this.input.position(x + 170, y);
-    this.input.size(80);
+    this.input.position(x + 200, y);
+    this.input.size(50);
     this.input.attribute('min', '0');
   }
 
