@@ -176,8 +176,8 @@
     
     // --- Axle Position 
     // I am assuming the weight of the trailer frame to be 22kg/m of length which is based on a Grade 350 150x50x3 RHS averaging 9kg per m. (https://www.southernsteel.com.au/)
-    // As the drawbar is made up of 2 of these sections, I will assume 18 kg/m and add 4kg/m to be sure. Usually the frame will be made of lighter material
-    // but more of it. 
+    // As the drawbar is made up of 2 of these sections, I will assume 18 kg/m and add 4kg/m to be sure. Usually the chassis will be made of lighter material
+    // than the the drawbar but there is more of it. Thus we can assume 22kg/m for the whole length the trailer. 
     // 22 kg/m = 0.022kg/mm
     // I will assume 150kg per axle, this will include axle, hubs, brakes, suspension and wheels. (https://www.couplemate.com.au/)
     // Braked Axle = ~90kg, Suspension = ~ 12 kg per side, wheels and tyres = 20 kg each
@@ -187,7 +187,8 @@
     let totalTrailerFrameWeight = ((bodyLengthNum+measuredDrawbarLengthMM))*0.022 + numberOfAxles * 150 + bodyWeightkg; 
     let trailerCapacity = atm - toolBoxWeight - totalTrailerFrameWeight;
     let tongueWeight = (atm * 0.1); 
-    let axlePositionUnScaled = ((totalTrailerFrameWeight*trailerCOG)+(toolBoxPos*toolBoxWeight)+(trailerCapacity*(measuredDrawbarLengthMM+bodyLengthNum/2)))/(atm-tongueWeight);
+    let axlePositionUnScaled = round(((totalTrailerFrameWeight*trailerCOG)+(toolBoxPos*toolBoxWeight)+
+    (trailerCapacity*(measuredDrawbarLengthMM+bodyLengthNum/2)))/(atm-tongueWeight),0);
     let axlePosition = drawbarTipX+axlePositionUnScaled*scaleFactor;
     
     // --- wheels ---
@@ -205,7 +206,8 @@
     };
 
     // --- dimensions ---
-    const dimYTop    = bodyTopY - guardThickness - 25;
+    const dimYTop    = bodyTopY - guardThickness - 50;
+    const dimYTop2   = bodyTopY - guardThickness - 20;
 
      // Centreline (dashed)
     stroke(150);
@@ -231,7 +233,14 @@
       bodyLengthPx+bodyFrontX,
       dimYTop,
       trailerBodyLengthField.value()
-    );    
+    );
+    
+    drawHorizontalDimension(
+      measurementStartX,
+      axlePosition,
+      dimYTop2,
+      axlePositionUnScaled
+    ); 
 
     // Trailer Body Width Measurement
     drawVerticalDimension(
