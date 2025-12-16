@@ -58,7 +58,7 @@
     const atm = parseFloat(atmField.value()) || 0;
     const measuredDrawbarLengthMM = parseFloat(drawbarLengthField.value()) || 0;
     const physicalDrawbarLengthMM = Math.max(measuredDrawbarLengthMM - COUPLER_OFFSET_MM, 0);
-
+    
     // --- number of axles
     if(atm <= 2000) {
       numberOfAxles = 1
@@ -110,6 +110,13 @@
     const totalWidth = 2 * guardMm + bodyMm;
     const tyreDiameter = 800;
     const tyreDiameterPx = tyreDiameter * scaleFactor;
+    const measurementStartX = bodyFrontX - measuredDrawbarLengthMM * scaleFactor; // 130 mm ahead of drawbar
+    const drawbarTipX       = measurementStartX + COUPLER_OFFSET_MM * scaleFactor; // actual drawbar tip
+    const drawbarWidthPx = drawbarWidthField.value() * scaleFactor; // drawbar half-width at body front 
+    const trailerCOG = (measuredDrawbarLengthMM + bodyLengthNum)/2;
+    const atm = parseFloat(atmField.value()) || 0;
+   
+    
     // --- main trailer body (rectangle) ---
     stroke(0);
     fill(245);
@@ -119,9 +126,7 @@
     // --- drawbar geometry ---
     // Measurement starts 130 mm in front of the physical drawbar, and finishes at the front of the trailer body.
 
-    const measurementStartX = bodyFrontX - measuredDrawbarLengthMM * scaleFactor; // 130 mm ahead of drawbar
-    const drawbarTipX       = measurementStartX + COUPLER_OFFSET_MM * scaleFactor; // actual drawbar tip
-    const drawbarWidthPx = drawbarWidthField.value() * scaleFactor; // drawbar half-width at body front 
+
 
     // Draw drawbar as 4 lines
     line(bodyFrontX , centreY - drawbarWidthPx/2 , drawbarTipX, centreY);
@@ -162,33 +167,41 @@
     rect(bodyFrontX, centreY - drawbarWidthPx/2, -25, drawbarWidthPx);
     rect(bodyFrontX - 25, centerYSideView + 10, 25, 35);
     line(bodyFrontX - 25, centerYSideView + 15,bodyFrontX , centerYSideView+15)
-    }else {};
-  
+    toolBoxPos = measuredDrawbarLengthMM - 200;
+    toolBoxWeight = 40;
+    }else {
+    toolBoxPos = 0;
+    toolBoxWeight = 0;
+    };
+    
     // --- Axle Position 
     // I am assuming the weight of the trailer frame to be 22kg/m of length which is based on a Grade 350 150x50x3 RHS averaging 9kg per m. (https://www.southernsteel.com.au/)
     // As the drawbar is made up of 2 of these sections, I will assume 18 kg/m and add 4kg/m to be sure. Usually the frame will be made of lighter material
     // but more of it. 
+    // 22 kg/m = 0.022kg/mm
     // I will assume 150kg per axle, this will include axle, hubs, brakes, suspension and wheels. (https://www.couplemate.com.au/)
     // Braked Axle = ~90kg, Suspension = ~ 12 kg per side, wheels and tyres = 20 kg each
     // Body weight will vary for each type of trailer 
-    let totalTrailerWeight = ((bodyLengthNum+measuredDrawbarLengthMM)/1000)*22 + numberOfAxles * 150 + bodyWeightkg; 
+    // Assume Toolbox weight = 40 kg
 
-    console.log(totalTrailerWeight)
+    let totalTrailerFrameWeight = ((bodyLengthNum+measuredDrawbarLengthMM))*0.022 + numberOfAxles * 150 + bodyWeightkg; 
+    let trailerCapacity = atm - toolBoxWeight - totalTrailerFrameWeight;
+    let TARE = (atm * 0.1); 
+    let axlePositionUnScaled = ((totalTrailerFrameWeight*trailerCOG)+(toolBoxPos*toolBoxWeight)+(trailerCapacity*(measuredDrawbarLengthMM+bodyLengthNum/2)))/(atm-TARE)
+    let axlePosition = drawbarTipX+axlePositionUnScaled*scaleFactor
     
-    let axleCenter = drawbarTipX + measuredDrawbarLengthMM * scaleFactor + bodyLengthPx / 2; // distance from coupler back to axle
-   
     // --- wheels ---
     if(numberOfAxles===1){
-      drawTyre(axleCenter, axleHeight, tyreDiameterPx);
-      drawTyreGuard(axleCenter, axleHeight -35, numberOfAxles);
-      drawTyreGuardTop(axleCenter-30, bodyTopY, numberOfAxles);
-      drawTyreGuardTop(axleCenter-30, bodyBottomY+guardThickness, numberOfAxles);
+      drawTyre(axlePosition, axleHeight, tyreDiameterPx);
+      drawTyreGuard(axlePosition, axleHeight -35, numberOfAxles);
+      drawTyreGuardTop(axlePosition-30, bodyTopY, numberOfAxles);
+      drawTyreGuardTop(axlePosition-30, bodyBottomY+guardThickness, numberOfAxles);
     }else if(numberOfAxles===2){
-      drawTyre(axleCenter - 35, axleHeight, tyreDiameterPx);
-      drawTyre(axleCenter + 35, axleHeight, tyreDiameterPx);
-      drawTyreGuard(axleCenter, axleHeight-35, numberOfAxles);
-      drawTyreGuardTop(axleCenter - 50, bodyTopY, numberOfAxles);
-      drawTyreGuardTop(axleCenter - 50, bodyBottomY+guardThickness, numberOfAxles);
+      drawTyre(axlePosition - 35, axleHeight, tyreDiameterPx);
+      drawTyre(axlePosition + 35, axleHeight, tyreDiameterPx);
+      drawTyreGuard(axlePosition, axleHeight-35, numberOfAxles);
+      drawTyreGuardTop(axlePosition - 50, bodyTopY, numberOfAxles);
+      drawTyreGuardTop(axlePosition - 50, bodyBottomY+guardThickness, numberOfAxles);
     };
 
     // --- dimensions ---
@@ -305,7 +318,7 @@ function drawTyreGuard(x,y,num){
     vertex(x-30*num-15,y+20);
     vertex(x-30*num,y);
     vertex(x,y);
-    endShape(close);
+    endShape(CLOSE);
     line(x+30*num+15,y+20,x+30*num+15,y+40)
     };
 
