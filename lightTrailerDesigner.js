@@ -1,11 +1,16 @@
  // --- URL: https://toddlonergan.github.io/lightTrailerDesigner/
  
- // --- configuration in mm ---
-  const COUPLER_OFFSET_MM = 130;     // measurement starts 130 mm ahead of the drawbar
-  const offset = 5
+ // --- Configuration in mm ---
+  
+ const COUPLER_OFFSET_MM = 130;     // measurement starts 130 mm ahead of the drawbar
+  const offset = 5;
+  
   // scale: pixels per mm (adjust if you want it bigger/smaller)
+  
   let scaleFactor = 0.08;
+  
   // UI elements
+  
   let atmField;
   let drawbarLengthField;
   let drawbarWidthField;
@@ -40,7 +45,7 @@
    drawbarWidthField      = new LabeledInput('Drawbar width (mm):',  labelX, uiBaseY + 90, '1500');
    trailerBodyLengthField = new LabeledInput('Length of trailer body (mm):', labelX, uiBaseY + 120, '3000');
    trailerBodyWidthField  = new LabeledInput('Width of trailer body (mm):',  labelX, uiBaseY + 150, '2000');
-   trailerGuardWidth      = new LabeledInput('Width of Wheel Guards (mm):', labelX, uiBaseY + 180, '250')
+   trailerGuardWidth      = new LabeledInput('Width of Wheel Guards (mm):', labelX, uiBaseY + 180, '250');
 
    trailerBodySelect = createSelect();
    trailerBodySelect.position(labelX + 0.165 * width, uiBaseY );
@@ -49,8 +54,8 @@
    trailerBodySelect.option('Car Trailer', 1000);
    trailerBodySelect.option('Camper Trailer', 1500);
    trailerBodySelect.option('Horse Float', 1000);
-   //trailerBodySelect.selected('Car Trailer');
-  }
+  
+  };
 
   function draw() {
     background(255);
@@ -84,17 +89,9 @@
 
     drawTrailerPlan(bodyFrontX, centreY, measuredDrawbarLengthMM);
     
-  }
+  };
 
-  /**
-   * Draws the plan view trailer body + drawbar + dimensions.
-   *
-   * @param {number} bodyFrontX - x coordinate of the FRONT face of the main trailer body.
-   * @param {number} centreY - y coordinate of the trailer centreline.
-   * @param {number} measuredDrawbarLengthMM - length in mm from 130 mm ahead of drawbar
-   *                                           back to the front of the body.
-   */
-  function drawTrailerPlan(bodyFrontX, centreY, measuredDrawbarLengthMM) {
+   function drawTrailerPlan(bodyFrontX, centreY, measuredDrawbarLengthMM) {
     
     // Convert main dimensions to pixels
     const bodyLengthPx      = trailerBodyLengthField.value() * scaleFactor;
@@ -115,18 +112,12 @@
     const drawbarWidthPx    = drawbarWidthField.value() * scaleFactor; // drawbar half-width at body front 
     const trailerCOG        = (measuredDrawbarLengthMM + bodyLengthNum)/2;
     const atm               = parseFloat(atmField.value()) || 0;
-   
-    
-    // --- main trailer body (rectangle) ---
+       
+    // --- Main trailer body (rectangle) ---
     stroke(0);
     fill(245);
     rect(bodyFrontX, bodyTopY, bodyLengthPx, bodyWidthPx);
     rect(bodyFrontX + offset, bodyTopY + offset, bodyLengthPx - 2 * offset, bodyWidthPx - 2 * offset);
-
-    // --- drawbar geometry ---
-    // Measurement starts 130 mm in front of the physical drawbar, and finishes at the front of the trailer body.
-
-
 
     // Draw drawbar as 4 lines
     line(bodyFrontX , centreY - drawbarWidthPx/2 , drawbarTipX, centreY);
@@ -139,7 +130,7 @@
     const couplerY = centreY;
     fill(255);
     stroke(0);
-    const ballsize = 13
+    const ballsize = 13;
     const couplerLength = 2.2 * COUPLER_OFFSET_MM * scaleFactor;
     const sideCouplerLength = couplerX - ballsize + 1.5;
     rect(couplerX - 5, couplerY - 4, couplerLength, 8); // rectangular coupler
@@ -149,20 +140,21 @@
     const centerYSideView = centreY + height * 0.35;
     const axleHeight = centerYSideView + height *0.075;
     
-    // --- trailer body side view
+    // --- Trailer body side view
     rect(bodyFrontX, centerYSideView , bodyLengthPx, 50) 
     rect(measurementStartX, centerYSideView + 45 , measuredDrawbarLengthMM * scaleFactor, 5)//drawbar side view
     line(bodyFrontX+5, centerYSideView,bodyFrontX+5, centerYSideView+50);
     line(bodyRearX-5, centerYSideView, bodyRearX-5, centerYSideView+50);
+    line(bodyFrontX+5, centerYSideView+4, bodyRearX-5, centerYSideView+4);
 
-    // --- Side View of Ball part of coupling
+    // --- Side view of ball part of coupling
     arc(couplerX - 5 , centerYSideView +42 , ballsize,  ballsize ,PI , 1.75 * PI); 
     line(sideCouplerLength, centerYSideView +42, sideCouplerLength , centerYSideView +44);
     line(sideCouplerLength + couplerLength, centerYSideView +44, sideCouplerLength + couplerLength, centerYSideView +38);
     line(sideCouplerLength, centerYSideView +44, sideCouplerLength + couplerLength, centerYSideView +44);
     line(sideCouplerLength + couplerLength, centerYSideView +38,(sideCouplerLength + couplerLength)*0.95 ,centerYSideView +38);
 
-    // --- toolbox ---
+    // --- Toolbox ---
     if(toolboxCheckbox.checked()){
     rect(bodyFrontX, centreY - drawbarWidthPx/2, -25, drawbarWidthPx);
     rect(bodyFrontX - 25, centerYSideView + 10, 25, 35);
@@ -191,7 +183,8 @@
     (trailerCapacity*(measuredDrawbarLengthMM+bodyLengthNum/2)))/(atm-tongueWeight),0);
     let axlePosition = drawbarTipX+axlePositionUnScaled*scaleFactor;
     
-    // --- wheels ---
+    // --- Wheels and wheelguards ---
+
     if(numberOfAxles===1){
       drawTyre(axlePosition, axleHeight, tyreDiameterPx);
       drawTyreGuard(axlePosition, axleHeight -35, numberOfAxles);
@@ -205,7 +198,7 @@
       drawTyreGuardTop(axlePosition, bodyBottomY, numberOfAxles, guardThickness);
     };
 
-    // --- dimensions ---
+    // --- Dimensions ---
     const dimYTop    = bodyTopY - guardThickness - 50;
     const dimYTop2   = bodyTopY - guardThickness - 20;
 
@@ -219,7 +212,7 @@
       drawingContext.setLineDash([]);
     };   
 
-    // Full measurement: from 130 mm ahead of drawbar to trailer front
+    // Drawbar measurement: from 130 mm ahead of drawbar to trailer front
     drawHorizontalDimension(
       measurementStartX,
       bodyFrontX,
@@ -227,7 +220,7 @@
       measuredDrawbarLengthMM 
     );
 
-    // Trailer Body Length Measurement
+    // Trailer body length measurement
     drawHorizontalDimension(
       bodyFrontX,
       bodyLengthPx+bodyFrontX,
@@ -235,6 +228,7 @@
       trailerBodyLengthField.value()
     );
     
+    // Distance from coupling to axle position
     drawHorizontalDimension(
       measurementStartX,
       axlePosition,
@@ -242,7 +236,7 @@
       axlePositionUnScaled
     ); 
 
-    // Trailer Body Width Measurement
+    // Trailer body width measurement
     drawVerticalDimension(
       bodyLengthPx+bodyFrontX + 50,
       bodyTopY,
@@ -250,7 +244,7 @@
       trailerBodyWidthField.value() 
     );
 
-    // Drawbar Width Measurement
+    // Drawbar width measurement
     drawVerticalDimension(
       bodyLengthPx + bodyFrontX + 25,
       centreY + drawbarWidthPx/2,
@@ -258,6 +252,7 @@
       drawbarWidthField.value() 
     );
     
+    // Total trailer width measurement
     drawVerticalDimension(
       bodyLengthPx + bodyFrontX + 75,
       bodyTopY - guardThickness,
