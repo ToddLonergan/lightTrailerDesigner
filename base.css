@@ -40,7 +40,6 @@ body {
     font-family:monospace;
 }
 
-
 @media (max-width: 900px){
   .byot-header-center{ display:none; }
 }
