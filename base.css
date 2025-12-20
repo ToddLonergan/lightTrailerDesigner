@@ -1,4 +1,6 @@
 base.css
+
+
 .byot-header{
   position:sticky; top:0; z-index:30;
   display:flex; align-items:center; justify-content:space-between;
@@ -36,6 +38,11 @@ body {
     margin:0;
     background-color:#333333;
     font-family:monospace;
+}
+
+
+@media (max-width: 900px){
+  .byot-header-center{ display:none; }
 }
 
 #container {
