@@ -1,5 +1,36 @@
-base.css
+/* base.css — Build Your Own Trailer */
 
+:root{
+  --bg0:#070a12;
+  --bg1:#0b1020;
+  --card:rgba(255,255,255,0.06);
+  --card2:rgba(255,255,255,0.08);
+  --stroke:rgba(255,255,255,0.12);
+  --text:#eaf0ff;
+  --muted:rgba(234,240,255,0.72);
+  --accent:#22c55e;
+  --accent2:#0ea5e9;
+  --danger:#ef4444;
+  --shadow: 0 18px 60px rgba(0,0,0,0.45);
+}
+
+*{ box-sizing:border-box; }
+html,body{ height:100%; }
+
+body{
+  margin:0;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+  color:var(--text);
+  background:
+    radial-gradient(1200px 700px at 20% 10%, rgba(14,165,233,0.18), transparent 55%),
+    radial-gradient(900px 600px at 80% 20%, rgba(167,139,250,0.16), transparent 55%),
+    linear-gradient(180deg, var(--bg0), var(--bg1));
+}
+
+/* App wrapper */
+.byot-app{ min-height:100vh; display:flex; flex-direction:column; }
+
+/* ---------- HEADER ---------- */
 
 .byot-header{
   position:sticky; top:0; z-index:30;
@@ -11,15 +42,52 @@ base.css
   border-bottom:1px solid rgba(255,255,255,0.08);
 }
 
-/* NEW */
+.byot-header-left{
+  display:flex; align-items:center; gap:14px;
+  min-width:0; /* allows brand to shrink */
+}
+
+.byot-login{ min-width:110px; }
+
+.byot-brand{
+  display:flex; align-items:center; gap:10px;
+  text-decoration:none;
+  color:var(--text);
+  min-width:0;
+}
+
+.byot-brand-mark{ display:inline-flex; }
+
+.byot-brand-text{ min-width:0; }
+
+.byot-brand-title{
+  font-weight:800;
+  letter-spacing:0.2px;
+  display:block;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.byot-brand-subtitle{
+  display:block;
+  font-size:12px;
+  color:var(--muted);
+  margin-top:2px;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Centre “Under Construction” */
 .byot-header-center{
   flex: 1;
   display:flex;
   justify-content:center;
-  pointer-events:none; /* so it doesn't block clicking the nav */
+  pointer-events:none; /* don’t block nav clicks */
+  min-width:0;
 }
 
-/* NEW */
 .byot-underconstruction{
   pointer-events:none;
   font-weight: 800;
@@ -31,22 +99,348 @@ base.css
   border-radius: 999px;
   text-align: center;
   max-width: 520px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-body {
-    padding:0;
-    margin:0;
-    background-color:#333333;
-    font-family:monospace;
+/* Nav */
+.byot-nav{
+  display:flex;
+  gap:10px;
+  flex-wrap:nowrap;
+  align-items:center;
+  justify-content:flex-end;
+  overflow-x:auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 52vw;
+  padding-bottom: 2px;
 }
+
+.byot-nav::-webkit-scrollbar{ height: 6px; }
+.byot-nav::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,0.12);
+  border-radius: 999px;
+}
+
+.byot-tab{
+  flex: 0 0 auto;
+  text-decoration:none;
+  color:var(--muted);
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  padding:10px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  transition: transform .12s ease, border-color .12s ease, background .12s ease;
+  white-space:nowrap;
+}
+
+.byot-tab:hover{
+  transform: translateY(-1px);
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+}
+
+.byot-tab.is-active{
+  border-color: rgba(34,197,94,0.55);
+  background: rgba(34,197,94,0.10);
+  color: var(--text);
+}
+
+/* ---------- MAIN LAYOUT ---------- */
+
+.byot-main{
+  width:min(1100px, 92vw);
+  margin: 26px auto 40px;
+  flex:1;
+}
+
+/* Hero */
+.byot-hero{
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap:18px;
+  align-items:stretch;
+  margin-bottom: 18px;
+}
+
+.byot-hero-card{
+  border:1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: var(--shadow);
+}
+
+.byot-hero-art{
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius: 22px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--shadow);
+  min-height: 260px;
+}
+
+/* Typography */
+.byot-h1{ margin:0 0 10px; font-size: 34px; line-height:1.12; }
+.byot-h2{ margin:0 0 10px; font-size: 22px; }
+.byot-h3{ margin:0 0 10px; font-size: 16px; }
+
+.byot-lead{ margin:0 0 16px; color:var(--muted); font-size: 15px; line-height:1.55; }
+.byot-text{ color:var(--muted); line-height:1.65; margin:0 0 14px; }
+.byot-muted{ color:var(--muted); }
+.byot-small{ font-size: 12.5px; line-height: 1.45; }
+
+/* Buttons */
+.byot-actions{ display:flex; gap:10px; flex-wrap:wrap; margin: 12px 0 8px; }
+
+.byot-btn{
+  border:1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 14px;
+  cursor:pointer;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  transition: transform .12s ease, background .12s ease, border-color .12s ease;
+}
+
+.byot-btn:hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.20);
+}
+
+.byot-btn-primary{
+  border-color: rgba(34,197,94,0.5);
+  background: linear-gradient(135deg, rgba(34,197,94,0.22), rgba(14,165,233,0.16));
+}
+
+.byot-btn-primary:hover{ border-color: rgba(34,197,94,0.75); }
+
+.byot-btn-ghost{ background: transparent; }
+
+.byot-btn-sm{ padding: 8px 10px; border-radius: 12px; font-weight: 700; }
+
+/* Badges */
+.byot-badges{ display:flex; flex-wrap:wrap; gap:8px; margin-top: 12px; }
+.byot-badge{
+  font-size: 12px;
+  color: rgba(234,240,255,0.82);
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.03);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+/* Sections/cards */
+.byot-section{ margin-top: 14px; }
+
+.byot-grid{
+  display:grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 16px;
+}
+
+.byot-card{
+  border:1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.05);
+  border-radius: 22px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+}
+
+.byot-card-alt{ background: rgba(255,255,255,0.04); }
+
+.byot-list{ margin: 8px 0 14px 18px; color: var(--muted); line-height:1.6; }
+
+.byot-divider{ height:1px; background: rgba(255,255,255,0.10); margin: 14px 0; }
+
+.byot-feature{ display:flex; gap:10px; align-items:flex-start; padding: 10px 0; }
+
+.byot-feature-icon{
+  width: 34px; height: 34px;
+  display:flex; align-items:center; justify-content:center;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+}
+
+.byot-feature-title{ font-weight: 800; margin-bottom: 3px; }
+
+/* Callout */
+.byot-callout{
+  border:1px solid rgba(255,255,255,0.12);
+  background: rgba(239,68,68,0.08);
+  border-radius: 18px;
+  padding: 12px;
+  margin: 10px 0 14px;
+}
+.byot-callout-title{ font-weight: 800; margin-bottom: 6px; }
+
+/* Advice tiles */
+.byot-tiles{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.byot-tile{
+  border:1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.byot-tile-title{ font-weight: 800; margin-bottom: 6px; }
+
+/* Forms */
+.byot-form{ display:flex; flex-direction:column; gap: 12px; }
+
+.byot-label{
+  display:flex; flex-direction:column;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.byot-input, .byot-textarea{
+  width:100%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(0,0,0,0.25);
+  color: var(--text);
+  outline: none;
+}
+
+.byot-input:focus, .byot-textarea:focus{
+  border-color: rgba(14,165,233,0.55);
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.14);
+}
+
+.byot-link{ color: rgba(168,231,255,0.95); text-decoration: none; }
+.byot-link:hover{ text-decoration: underline; }
+
+/* Footer */
+.byot-footer{
+  border-top:1px solid rgba(255,255,255,0.08);
+  padding: 18px 0 24px;
+  background: rgba(0,0,0,0.18);
+}
+
+.byot-footer-inner{
+  width:min(1100px, 92vw);
+  margin: 0 auto;
+  display:flex; align-items:center; justify-content:space-between; gap: 12px;
+}
+
+.byot-footer-title{ font-weight: 900; margin-bottom: 4px; }
+.byot-dot{ opacity:0.55; margin: 0 6px; }
+
+/* Toast */
+.byot-toast{
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  transform: translate(-50%, 20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform .18s ease, opacity .18s ease;
+  border:1px solid rgba(255,255,255,0.16);
+  background: rgba(0,0,0,0.55);
+  padding: 10px 12px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  z-index: 80;
+  font-weight: 800;
+}
+
+.byot-toast.is-show{
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+/* Modal (if you ever re-enable it) */
+.byot-modal-overlay{
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.66);
+  backdrop-filter: blur(8px);
+  display:flex; align-items:center; justify-content:center;
+  padding: 16px;
+  z-index: 70;
+}
+
+.byot-modal{
+  width: min(1100px, 96vw);
+  height: min(760px, 90vh);
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.16);
+  background: rgba(7,10,18,0.92);
+  box-shadow: var(--shadow);
+  overflow:hidden;
+  display:flex; flex-direction:column;
+}
+
+.byot-modal-bar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.10);
+}
+
+.byot-modal-title{ font-weight: 900; }
+
+.byot-modal-body{ padding: 14px; overflow:auto; }
+
+.byot-designer-mount{
+  margin-top: 10px;
+  border-radius: 18px;
+  border: 1px dashed rgba(255,255,255,0.18);
+  padding: 10px;
+  min-height: 420px;
+}
+
+/* ---------- RESPONSIVE ---------- */
 
 @media (max-width: 900px){
+  .byot-hero{ grid-template-columns: 1fr; }
+  .byot-grid{ grid-template-columns: 1fr; }
+  .byot-tiles{ grid-template-columns: 1fr; }
+
+  .byot-header{
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
   .byot-header-center{ display:none; }
+
+  .byot-header-left{
+    width: 100%;
+    justify-content: space-between;
+    order: 1;
+  }
+
+  .byot-nav{
+    width: 100%;
+    max-width: 100%;
+    order: 3;
+    justify-content: flex-start;
+  }
 }
 
-#container {
-    /* css that effects the container holding main. */
-    display:flex;
-    justify-content:center;
-    align-items:center;
+@media (max-width: 520px){
+  .byot-login{
+    padding: 8px 10px;
+    border-radius: 12px;
+    min-width: 0;
+  }
+
+  .byot-tab{
+    padding: 9px 10px;
+    font-size: 12.5px;
+  }
 }

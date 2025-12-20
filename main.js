@@ -31,8 +31,7 @@
 
   // --- App bootstrap ---
   const root = ensureAppRoot();
-  injectStyles();
-
+  
   const state = {
     route: normaliseRoute(location.hash),
     loggedIn: sessionStorage.getItem("byot_logged_in") === "1",
@@ -525,12 +524,6 @@
       t.classList.remove("is-show");
       setTimeout(() => t.remove(), 250);
     }, 2200);
-  }
-
-  function injectStyles() {
-    const style = document.createElement("style");
-    style.textContent = css();
-    document.head.appendChild(style);
   }
 
   function heroSvgDataUri() {
