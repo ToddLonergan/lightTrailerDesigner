@@ -21,43 +21,64 @@
   let numberOfAxles;
   let toolboxCheckbox;
   let guardThickness;
+let canvasEl;
+const canvasX = 20;
+const uiGapX = 50;
+const inputOffsetX = 160; // set to match LabeledInput
 
-  function setup() {
-    
+function layoutUI() {
   const topbarH = document.querySelector(".topbar")?.offsetHeight || 0;
+  const canvasY = topbarH + 20;
 
-  const canvasX = 20;
-  const canvasY = topbarH + 20; // ✅ pushes canvas below topbar
+  // move canvas
+  canvasEl.position(canvasX, canvasY);
 
-  const canvas = createCanvas(900, 800);
-  canvas.position(canvasX, canvasY);
-  canvas.style("border", "1px solid #cccccc");
+  // align UI with canvas top
+  const labelX = canvasX + width + uiGapX;
+  const uiBaseY = canvasY;
 
-    textFont('sans-serif');
+  toolboxCheckbox.position(labelX, uiBaseY);
 
-    // position for UI controls under the canvas
-    const uiBaseY = canvasY + 20;
-    const labelX  = canvasX + width + 50;
+  // If your LabeledInput doesn’t support repositioning, ignore this section.
+  // Better: add a setPosition(x,y) method to LabeledInput.
+  atmField.setPosition(labelX, uiBaseY + 30);
+  drawbarLengthField.setPosition(labelX, uiBaseY + 60);
+  drawbarWidthField.setPosition(labelX, uiBaseY + 90);
+  trailerBodyLengthField.setPosition(labelX, uiBaseY + 120);
+  trailerBodyWidthField.setPosition(labelX, uiBaseY + 150);
+  trailerGuardWidth.setPosition(labelX, uiBaseY + 180);
 
-   toolboxCheckbox = createCheckbox('Toolbox', false);
-   toolboxCheckbox.position(labelX, uiBaseY);
+  trailerBodySelect.position(labelX + inputOffsetX, uiBaseY);
+}
 
-   atmField               = new LabeledInput('ATM (kg): ', labelX, uiBaseY + 30, '2200');
-   drawbarLengthField     = new LabeledInput('Drawbar length (mm):', labelX, uiBaseY + 60, '1500');
-   drawbarWidthField      = new LabeledInput('Drawbar width (mm):',  labelX, uiBaseY + 90, '1500');
-   trailerBodyLengthField = new LabeledInput('Length of trailer body (mm):', labelX, uiBaseY + 120, '3000');
-   trailerBodyWidthField  = new LabeledInput('Width of trailer body (mm):',  labelX, uiBaseY + 150, '2000');
-   trailerGuardWidth      = new LabeledInput('Width of Wheel Guards (mm):', labelX, uiBaseY + 180, '250');
+function setup() {
+  canvasEl = createCanvas(900, 800);
+  canvasEl.style("border", "1px solid #cccccc");
+  textFont("sans-serif");
 
-   trailerBodySelect = createSelect();
-   trailerBodySelect.position(labelX + 0.165 * width, uiBaseY );
-   trailerBodySelect.option('Box Trailer', 50);
-   trailerBodySelect.option('Boat Trailer', 0);
-   trailerBodySelect.option('Car Trailer', 1000);
-   trailerBodySelect.option('Camper Trailer', 1500);
-   trailerBodySelect.option('Horse Float', 1000);
-  
-  };
+  // create UI once
+  toolboxCheckbox = createCheckbox("Toolbox", false);
+
+  atmField               = new LabeledInput("ATM (kg): ", labelX, 0, "2200");
+  drawbarLengthField     = new LabeledInput("Drawbar length (mm):", labelX, 0, "1500");
+  drawbarWidthField      = new LabeledInput("Drawbar width (mm):",  labelX, 0, "1500");
+  trailerBodyLengthField = new LabeledInput("Length of trailer body (mm):", labelX, 0, "3000");
+  trailerBodyWidthField  = new LabeledInput("Width of trailer body (mm):",  labelX, 0, "2000");
+  trailerGuardWidth      = new LabeledInput("Width of Wheel Guards (mm):", labelX, 0, "250");
+
+  trailerBodySelect = createSelect();
+  trailerBodySelect.option("Box Trailer", 50);
+  trailerBodySelect.option("Boat Trailer", 0);
+  trailerBodySelect.option("Car Trailer", 1000);
+  trailerBodySelect.option("Camper Trailer", 1500);
+  trailerBodySelect.option("Horse Float", 1000);
+
+  layoutUI();
+}
+
+function windowResized() {
+  layoutUI();
+}
 
   function draw() {
     background(255);
