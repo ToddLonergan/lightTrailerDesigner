@@ -534,6 +534,11 @@ function renderContact() {
     return el;
   }
 
+  const style = document.createElement("style");
+  style.textContent = css();
+  document.head.appendChild(style);
+
+
   function normaliseRoute(hash) {
     const raw = (hash || "").replace("#", "").trim().toLowerCase();
     const allowed = new Set(["configure", "compliance", "advice", "contact"]);
