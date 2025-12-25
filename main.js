@@ -364,7 +364,7 @@ function renderContact() {
   section.className = "byot-section";
 
   const email = "info@buildyourowntrailer.com.au"; // ✅ send direct to info mailbox
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xxxxabcd"; // ✅ put your real Formspree ID here
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xwvedwdq"; // ✅ put your real Formspree ID here
 
   section.innerHTML = `
     <div class="byot-grid">
