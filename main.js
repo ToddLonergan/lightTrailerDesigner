@@ -359,111 +359,141 @@
     return section;
   }
 
-  function renderAdvice() {
-    const section = document.createElement("section");
-    section.className = "byot-section";
+function renderContact() {
+  const section = document.createElement("section");
+  section.className = "byot-section";
 
-    section.innerHTML = `
+  const email = "info@buildyourowntrailer.com.au"; // ✅ send direct to info mailbox
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xxxxabcd"; // ✅ put your real Formspree ID here
+
+  section.innerHTML = `
+    <div class="byot-grid">
       <div class="byot-card">
-        <h2 class="byot-h2">Advice</h2>
+        <h2 class="byot-h2">Contact Us</h2>
+        <p class="byot-text">Send a message and I’ll get back to you when I can.</p>
+
+        <form
+          class="byot-form"
+          id="byot-contact-form"
+          method="POST"
+          action="${FORMSPREE_ENDPOINT}"
+        >
+          <!-- simple spam honeypot (humans won't fill it) -->
+          <input
+            type="text"
+            name="_gotcha"
+            tabindex="-1"
+            autocomplete="off"
+            style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;"
+            aria-hidden="true"
+          />
+
+          <label class="byot-label">
+            Your name
+            <input class="byot-input" name="name" autocomplete="name" required />
+          </label>
+
+          <label class="byot-label">
+            Your email
+            <input class="byot-input" type="email" name="email" autocomplete="email" required />
+          </label>
+
+          <label class="byot-label">
+            Message
+            <textarea class="byot-textarea" name="message" rows="6" required
+              placeholder="Tell me about your trailer, what you’re building, and what you need help with."></textarea>
+          </label>
+
+          <div class="byot-actions">
+            <button class="byot-btn byot-btn-primary" type="submit">Send</button>
+            <button class="byot-btn byot-btn-ghost" id="byot-copy-email" type="button">Copy email</button>
+          </div>
+
+          <p class="byot-muted byot-small">
+            This form submits via Formspree (no mail client required).
+          </p>
+        </form>
+      </div>
+
+      <div class="byot-card byot-card-alt">
+        <h3 class="byot-h3">Direct</h3>
         <p class="byot-text">
-          Build tips, “gotchas”, and practical notes. (You can replace these placeholders with real articles anytime.)
+          Email: <a class="byot-link" href="mailto:${email}">${email}</a>
         </p>
 
-        <div class="byot-tiles">
-          ${tile("Drawbar geometry 101", "How to think about length, angle, and attachment points without overcomplicating it.")}
-          ${tile("Weight distribution", "Simple ways to avoid nose-heavy or tail-heavy builds.")}
-          ${tile("Wiring + lighting", "Common faults, clean routing, and what to test before you tow.")}
-          ${tile("Materials + corrosion", "Paint, galvanising, and what actually survives in the real world.")}
-        </div>
+        <div class="byot-divider"></div>
+
+        <h3 class="byot-h3">What to include</h3>
+        <ul class="byot-list">
+          <li>Trailer type + intended use</li>
+          <li>ATM (target) and axle count</li>
+          <li>Any photos or sketches</li>
+        </ul>
       </div>
-    `;
-    return section;
-  }
+    </div>
+  `;
 
-  function renderContact() {
-    const section = document.createElement("section");
-    section.className = "byot-section";
+  const form = section.querySelector("#byot-contact-form");
+  const copyBtn = section.querySelector("#byot-copy-email");
 
-    const email = "hello@buildyourowntrailer.com.au"; // change later if you want
+  copyBtn?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(email);
+      toast("Email copied ✅");
+    } catch {
+      toast("Couldn’t copy (browser blocked clipboard).");
+    }
+  });
 
-    section.innerHTML = `
-      <div class="byot-grid">
-        <div class="byot-card">
-          <h2 class="byot-h2">Contact Us</h2>
-          <p class="byot-text">Send a message and I’ll get back to you when I can.</p>
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-          <form class="byot-form" id="byot-contact-form">
-            <label class="byot-label">
-              Your name
-              <input class="byot-input" name="name" autocomplete="name" required />
-            </label>
+    const fd = new FormData(form);
 
-            <label class="byot-label">
-              Your email
-              <input class="byot-input" type="email" name="email" autocomplete="email" required />
-            </label>
+    // Honeypot filled = likely bot
+    if (String(fd.get("_gotcha") || "").trim()) return;
 
-            <label class="byot-label">
-              Message
-              <textarea class="byot-textarea" name="message" rows="6" required placeholder="Tell me about your trailer, what you’re building, and what you need help with."></textarea>
-            </label>
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const oldText = submitBtn?.textContent;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = "Sending…";
+    }
 
-            <div class="byot-actions">
-              <button class="byot-btn byot-btn-primary" type="submit">Send</button>
-              <button class="byot-btn byot-btn-ghost" id="byot-copy-email" type="button">Copy email</button>
-            </div>
+    // Helpful metadata for the email subject in Formspree inbox
+    const name = String(fd.get("name") || "").trim();
+    fd.append("_subject", `[BYOT] Message from ${name || "Website visitor"}`);
 
-            <p class="byot-muted byot-small">
-              This form uses your email client (mailto) — no data is stored on the website.
-            </p>
-          </form>
-        </div>
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        body: fd,
+        headers: { "Accept": "application/json" }
+      });
 
-        <div class="byot-card byot-card-alt">
-          <h3 class="byot-h3">Direct</h3>
-          <p class="byot-text">
-            Email: <a class="byot-link" href="mailto:${email}">${email}</a>
-          </p>
-
-          <div class="byot-divider"></div>
-
-          <h3 class="byot-h3">What to include</h3>
-          <ul class="byot-list">
-            <li>Trailer type + intended use</li>
-            <li>ATM (target) and axle count</li>
-            <li>Any photos or sketches</li>
-          </ul>
-        </div>
-      </div>
-    `;
-
-    const form = section.querySelector("#byot-contact-form");
-    const copyBtn = section.querySelector("#byot-copy-email");
-
-    copyBtn?.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(email);
-        toast("Email copied ✅");
-      } catch {
-        toast("Couldn’t copy (browser blocked clipboard).");
+      if (res.ok) {
+        form.reset();
+        toast("Message sent ✅");
+      } else {
+        let msg = "Couldn’t send — please email us instead.";
+        try {
+          const data = await res.json();
+          if (data?.errors?.[0]?.message) msg = data.errors[0].message;
+        } catch {}
+        toast(msg);
       }
-    });
+    } catch {
+      toast("Network error — please email us instead.");
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = oldText || "Send";
+      }
+    }
+  });
 
-    form?.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const fd = new FormData(form);
-      const name = String(fd.get("name") || "");
-      const from = String(fd.get("email") || "");
-      const msg = String(fd.get("message") || "");
-
-      const subject = encodeURIComponent(`[BYOT] Message from ${name}`);
-      const body = encodeURIComponent(`From: ${name} <${from}>\n\n${msg}\n`);
-      window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-    });
-
-    return section;
-  }
+  return section;
+}
 
   function tile(title, desc) {
     return `
