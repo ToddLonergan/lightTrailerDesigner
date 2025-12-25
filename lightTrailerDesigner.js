@@ -23,13 +23,15 @@
   let guardThickness;
 
   function setup() {
-    const canvasX = 20;
-    const canvasY = 20;
+    
+  const topbarH = document.querySelector(".topbar")?.offsetHeight || 0;
 
-    // canvas
-    const canvas = createCanvas(900, 800);
-    canvas.position(canvasX, canvasY);
-    canvas.style('border', '1px solid #cccccc');
+  const canvasX = 20;
+  const canvasY = topbarH + 20; // ✅ pushes canvas below topbar
+
+  const canvas = createCanvas(900, 800);
+  canvas.position(canvasX, canvasY);
+  canvas.style("border", "1px solid #cccccc");
 
     textFont('sans-serif');
 
