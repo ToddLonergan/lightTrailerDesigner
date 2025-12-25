@@ -363,8 +363,10 @@ function renderContact() {
   const section = document.createElement("section");
   section.className = "byot-section";
 
-  const email = "info@buildyourowntrailer.com.au"; // ✅ send direct to info mailbox
-  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xwvedwdq"; // ✅ put your real Formspree ID here
+  const email = "info@buildyourowntrailer.com.au";
+  const FORMSPREE_ENDPOINT = "https://formspree.io/f/xwvedwdq";
+
+  const mountedAt = Date.now(); // ✅ for simple anti-bot timing check
 
   section.innerHTML = `
     <div class="byot-grid">
@@ -378,7 +380,6 @@ function renderContact() {
           method="POST"
           action="${FORMSPREE_ENDPOINT}"
         >
-          <!-- simple spam honeypot (humans won't fill it) -->
           <input
             type="text"
             name="_gotcha"
@@ -438,20 +439,28 @@ function renderContact() {
 
   copyBtn?.addEventListener("click", async () => {
     try {
-      await navigator.clipboard.writeText(email);
-      toast("Email copied ✅");
-    } catch {
-      toast("Couldn’t copy (browser blocked clipboard).");
-    }
-  });
+        await navigator.clipboard.writeText(email);
+        toast("Email copied ✅");
+      } catch {
+        toast("Couldn’t copy (browser blocked clipboard).");
+      }
+    });
 
-  form?.addEventListener("submit", async (e) => {
+    form?.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const fd = new FormData(form);
 
-    // Honeypot filled = likely bot
     if (String(fd.get("_gotcha") || "").trim()) return;
+    if (Date.now() - mountedAt < 800) return;
+
+    // ✅ double-submit protection
+    if (isSending) return;
+
+    if (Date.now() < cooldownUntil) {
+      toast("Just sent ✅ Give it a moment.");
+      return;
+    }
 
     const submitBtn = form.querySelector('button[type="submit"]');
     const oldText = submitBtn?.textContent;
@@ -460,9 +469,12 @@ function renderContact() {
       submitBtn.textContent = "Sending…";
     }
 
-    // Helpful metadata for the email subject in Formspree inbox
     const name = String(fd.get("name") || "").trim();
+    const from = String(fd.get("email") || "").trim();
     fd.append("_subject", `[BYOT] Message from ${name || "Website visitor"}`);
+    fd.append("_replyto", from);
+
+    isSending = true; // ✅ lock
 
     try {
       const res = await fetch(FORMSPREE_ENDPOINT, {
@@ -474,6 +486,8 @@ function renderContact() {
       if (res.ok) {
         form.reset();
         toast("Message sent ✅");
+
+        cooldownUntil = Date.now() + 10_000; // ✅ 10s cooldown after success
       } else {
         let msg = "Couldn’t send — please email us instead.";
         try {
@@ -485,15 +499,17 @@ function renderContact() {
     } catch {
       toast("Network error — please email us instead.");
     } finally {
+      isSending = false; // ✅ unlock
+
       if (submitBtn) {
         submitBtn.disabled = false;
         submitBtn.textContent = oldText || "Send";
       }
     }
   });
-
   return section;
 }
+
 
   function tile(title, desc) {
     return `
