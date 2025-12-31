@@ -1,64 +1,76 @@
- // --- URL: https://toddlonergan.github.io/lightTrailerDesigner/
+// --- URL: https://toddlonergan.github.io/lightTrailerDesigner/
  
- // --- Configuration in mm ---
+// --- Configuration in mm ---
   
- const COUPLER_OFFSET_MM = 130;     // measurement starts 130 mm ahead of the drawbar
-  const offset = 5;
+const COUPLER_OFFSET_MM = 130;     // measurement starts 130 mm ahead of the drawbar
+const offset = 5;
   
-  // scale: pixels per mm (adjust if you want it bigger/smaller)
+// scale: pixels per mm (adjust if you want it bigger/smaller)
   
-  let scaleFactor = 0.08;
+let scaleFactor = 0.08;
   
-  // UI elements
+// UI elements
   
-  let atmField;
-  let drawbarLengthField;
-  let drawbarWidthField;
-  let trailerBodyLengthField;
-  let trailerBodyWidthField;
-  let trailerGuardWidth;
-  let trailerBodySelect;
-  let numberOfAxles;
-  let toolboxCheckbox;
-  let guardThickness;
+let atmField;
+let drawbarLengthField;
+let drawbarWidthField;
+let trailerBodyLengthField;
+let trailerBodyWidthField;
+let trailerGuardWidth;
+let trailerBodySelect;
+let numberOfAxles;
+let toolboxCheckbox;
+let guardThickness;
 let canvasEl;
-const canvasX = 20;
 const uiGapX = 50;
-const inputOffsetX = 160; // set to match LabeledInput
+
+// canvas + UI layout anchors
+const canvasX = 20;
+
+// horizontal offset from label to input (must match LabeledInput)
+const inputOffsetX = 200;
+
+// used by axle calc / toolbox block (avoid accidental implicit globals)
+let toolBoxPos = 0;
+let toolBoxWeight = 0;
+
+// computed in layoutUI()
+let labelX = 0;
 
 function layoutUI() {
+  if (!canvasEl) return; // safety for early/edge calls
+
   const topbarH = document.querySelector(".topbar")?.offsetHeight || 0;
   const canvasY = topbarH + 20;
-
+  
   // move canvas
   canvasEl.position(canvasX, canvasY);
-
+    
   // align UI with canvas top
-  const labelX = canvasX + width + uiGapX;
+  labelX = canvasX + width + uiGapX;
   const uiBaseY = canvasY;
+  
+  if (toolboxCheckbox) toolboxCheckbox.position(labelX, uiBaseY);
 
-  toolboxCheckbox.position(labelX, uiBaseY);
+  if (atmField)               atmField.setPosition(labelX, uiBaseY + 30);
+  if (drawbarLengthField)     drawbarLengthField.setPosition(labelX, uiBaseY + 60);
+  if (drawbarWidthField)      drawbarWidthField.setPosition(labelX, uiBaseY + 90);
+  if (trailerBodyLengthField) trailerBodyLengthField.setPosition(labelX, uiBaseY + 120);
+  if (trailerBodyWidthField)  trailerBodyWidthField.setPosition(labelX, uiBaseY + 150);
+  if (trailerGuardWidth)      trailerGuardWidth.setPosition(labelX, uiBaseY + 180);
 
-  // If your LabeledInput doesn’t support repositioning, ignore this section.
-  // Better: add a setPosition(x,y) method to LabeledInput.
-  atmField.setPosition(labelX, uiBaseY + 30);
-  drawbarLengthField.setPosition(labelX, uiBaseY + 60);
-  drawbarWidthField.setPosition(labelX, uiBaseY + 90);
-  trailerBodyLengthField.setPosition(labelX, uiBaseY + 120);
-  trailerBodyWidthField.setPosition(labelX, uiBaseY + 150);
-  trailerGuardWidth.setPosition(labelX, uiBaseY + 180);
-
-  trailerBodySelect.position(labelX + inputOffsetX, uiBaseY);
+  if (trailerBodySelect) trailerBodySelect.position(labelX + inputOffsetX, uiBaseY);
+  
 }
 
 function setup() {
   canvasEl = createCanvas(900, 800);
   canvasEl.style("border", "1px solid #cccccc");
   textFont("sans-serif");
-
-  // create UI once
+  
+  
   toolboxCheckbox = createCheckbox("Toolbox", false);
-
+  
   atmField               = new LabeledInput("ATM (kg): ", labelX, 0, "2200");
   drawbarLengthField     = new LabeledInput("Drawbar length (mm):", labelX, 0, "1500");
   drawbarWidthField      = new LabeledInput("Drawbar width (mm):",  labelX, 0, "1500");
@@ -72,7 +84,7 @@ function setup() {
   trailerBodySelect.option("Car Trailer", 1000);
   trailerBodySelect.option("Camper Trailer", 1500);
   trailerBodySelect.option("Horse Float", 1000);
-
+  
   layoutUI();
 }
 
@@ -82,11 +94,12 @@ function windowResized() {
 
   function draw() {
     background(255);
-
+    
+    
     const atm = parseFloat(atmField.value()) || 0;
     const measuredDrawbarLengthMM = parseFloat(drawbarLengthField.value()) || 0;
     const physicalDrawbarLengthMM = Math.max(measuredDrawbarLengthMM - COUPLER_OFFSET_MM, 0);
-    
+  
     // --- number of axles
     if(atm <= 2000) {
       numberOfAxles = 1
@@ -359,9 +372,14 @@ class LabeledInput {
     this.label = createSpan(labelText);
     this.label.position(x, y);
     this.input = createInput(defaultValue, type);
-    this.input.position(x + 200, y);
+    this.input.position(x + inputOffsetX, y);
     this.input.size(50);
     this.input.attribute('min', '0');
+  }
+
+  setPosition(x, y) {
+    this.label.position(x, y);
+    this.input.position(x + inputOffsetX, y);
   }
 
   value() {
